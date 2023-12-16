@@ -9,3 +9,7 @@ You will need to download the weights and the tokenizer vocabulary from https://
 ```sh
 python simple_inference.py --topk 5 "In physics, string theory is a theoretical framework in which the point-like particles of particle physics are replaced by one-dimensional objects called strings."
 ```
+
+```sh
+python test.py "In physics, string theory is a theoretical framework in which the point-like particles of particle physics are replaced by one-dimensional objects called strings."
+```

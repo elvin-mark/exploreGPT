@@ -6,12 +6,13 @@ import math
 
 class GPTConfig:
 
-    def __init__(self, n_ctx=1024, n_heads=12, vocab_size=50257, emb_dim=768, n_layers=12):
+    def __init__(self, n_ctx=1024, n_heads=12, vocab_size=50257, emb_dim=768, n_layers=12, dropout=0.1):
         self.n_ctx = n_ctx
         self.n_heads = n_heads
         self.vocab_size = vocab_size
         self.emb_dim = emb_dim
         self.n_layers = n_layers
+        self.dropout = dropout
 
 
 class Attention(nn.Module):
@@ -36,20 +37,25 @@ class Attention(nn.Module):
         att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
         att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float('-inf'))
         att = F.softmax(att, dim=-1)
+        att = F.dropout(att, p=self.conf.dropout)
         y = att @ v
         y = y.transpose(1, 2).contiguous().view(B, T, C)
         y = self.c_proj(y)
+        y = F.dropout(y, p=self.conf.dropout)
         return y
 
 
 class MLP(nn.Module):
     def __init__(self, conf: GPTConfig):
         super(MLP, self).__init__()
+        self.conf = conf
         self.c_fc = nn.Linear(conf.emb_dim, 3 * conf.n_ctx)
         self.c_proj = nn.Linear(3 * conf.n_ctx, conf.emb_dim)
 
     def forward(self, x):
-        return self.c_proj(F.gelu(self.c_fc(x)))
+        o = self.c_proj(F.gelu(self.c_fc(x)))
+        o = F.dropout(o, p=self.conf.dropout)
+        return o
 
 
 class Block(nn.Module):
@@ -81,6 +87,7 @@ class GPT2(nn.Module):
         # B: Batch size, T: number of tokens or sequence length
         B, T = x.size()
         x = self.wte(x) + self.wpe(torch.arange(0, T, dtype=int))
+        x = F.dropout(x, p=self.conf.dropout)
         for block in self.blocks:
             x = block(x)
         return self.ln_f(x) @ self.wte.weight.T
