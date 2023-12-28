@@ -170,6 +170,6 @@ class Encoder:
 
 
 def get_encoder(tokenizer_path):
-    with open(tokenizer_path, "r") as f:
+    with open(tokenizer_path, "r",encoding="utf-8") as f:
         tokenizer = json.load(f)
     return Encoder(encoder=tokenizer["model"]["vocab"], bpe_data=tokenizer["model"]["merges"])
