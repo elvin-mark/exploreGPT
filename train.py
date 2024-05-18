@@ -1,5 +1,7 @@
 from gpt import GPT2, GPTConfig
 
-# This will create a configuration file and create an instance of GPT2
+# Creating configuration for GTP2
 conf = GPTConfig()
+
+# Using configuration to create an instance of GTP2
 gpt = GPT2(conf)
