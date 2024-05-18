@@ -20,7 +20,7 @@ def layer_norm(x, g, b, eps: float = 1e-5):
 def linear(x, w, b):
     return x @ w + b
 
-
+# This is a feed forward network
 def ffn(x, c_fc, c_proj):
     return linear(gelu(linear(x, **c_fc)), **c_proj)
 
